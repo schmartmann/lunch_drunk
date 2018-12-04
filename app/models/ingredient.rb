@@ -55,5 +55,5 @@ class Ingredient < ActiveRecord::Base
   #----------------------------------------------------------------------------
   # associations
 
-  has_and_belongs_to_many  :meals
+  has_many    :meal_ingredients
 end

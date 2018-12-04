@@ -1,22 +1,25 @@
-class Meal < ActiveRecord::Base
+class MealIngredient < ActiveRecord::Base
 
   #----------------------------------------------------------------------------
   # attributes
 
   ATTRIBUTES = %i(
-    name
+    meal_id
+    ingredient_id
   ).freeze
-
 
   #----------------------------------------------------------------------------
   # validations
 
-  validates :name,
+  validates :meal_id,
+            presence: true
+
+  validates :ingredient_id,
             presence: true
 
   #----------------------------------------------------------------------------
   # associations
 
-  belongs_to  :time_period
-  has_many    :meal_ingredients
+  belongs_to  :meal
+  belongs_to  :ingredient
 end
