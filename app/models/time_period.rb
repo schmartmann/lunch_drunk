@@ -17,5 +17,5 @@ class TimePeriod < ActiveRecord::Base
   #----------------------------------------------------------------------------
   # associations
 
-  has_many  :meals
+  has_many  :meals, dependent: :destroy
 end
