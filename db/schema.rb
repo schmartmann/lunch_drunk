@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20181204193506) do
+ActiveRecord::Schema.define(version: 20181204222929) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -19,11 +19,13 @@ ActiveRecord::Schema.define(version: 20181204193506) do
     t.string "name"
     t.string "unit"
     t.integer "quantity"
+    t.string "uuid"
   end
 
   create_table "meal_ingredients", force: :cascade do |t|
     t.bigint "meal_id"
     t.bigint "ingredient_id"
+    t.string "uuid"
     t.index ["ingredient_id"], name: "index_meal_ingredients_on_ingredient_id"
     t.index ["meal_id"], name: "index_meal_ingredients_on_meal_id"
   end
@@ -31,11 +33,13 @@ ActiveRecord::Schema.define(version: 20181204193506) do
   create_table "meals", force: :cascade do |t|
     t.string "name"
     t.bigint "time_period_id"
+    t.string "uuid"
     t.index ["time_period_id"], name: "index_meals_on_time_period_id"
   end
 
   create_table "time_periods", force: :cascade do |t|
     t.string "name"
+    t.string "uuid"
   end
 
 end
