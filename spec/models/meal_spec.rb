@@ -1,18 +1,18 @@
 require 'rails_helper'
+require 'faker'
 
 RSpec.describe Meal do
   describe 'model methods' do
     let( :time_period )     { FactoryBot.create( :time_period ) }
     let( :uuid )            { SecureRandom.hex }
-    let( :meal )            { FactoryBot.create( :meal,
-                              uuid: uuid,
-                              time_period: time_period ) }
-    let( :ingredient )      { FactoryBot.create( :ingredient ) }
-    let( :meal_ingredient ) { FactoryBot.create( :meal_ingredient,
-                              meal: meal, ingredient: ingredient ) }
-
+    let( :meal_name )       { Faker::Food.dish }
+    let( :meal )            { FactoryBot.create(
+                              :meal,
+                              name: meal_name,
+                              time_period: time_period,
+                              uuid: uuid ) }
     it '.name' do
-      expect( meal.name ).to eq 'breakfast burrito'
+      expect( meal.name ).to eq meal_name
     end
 
     it '.uuid' do
@@ -26,7 +26,6 @@ RSpec.describe Meal do
     it '.ingredients' do
       ingredients = meal.ingredients
       expect( ingredients.any? ).to eq true
-      expect( ingredients.first.uuid ).to eq ingredient.uuid
     end
   end
 end

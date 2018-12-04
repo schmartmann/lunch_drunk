@@ -4,7 +4,6 @@ RSpec.describe TimePeriod do
   describe 'model methods' do
     let( :uuid )        { SecureRandom.hex }
     let( :time_period ) { FactoryBot.create( :time_period, uuid: uuid ) }
-    let( :meal )        { FactoryBot.create( :meal, time_period: time_period ) }
 
     it '.name' do
       expect( time_period.name ).to eq 'breakfast'
@@ -17,7 +16,6 @@ RSpec.describe TimePeriod do
     it '.meals' do
       meals = time_period.meals
       expect( meals.any? ).to eq true
-      expect( meals.first.uuid ).to eq meal.uuid
     end
   end
 end
