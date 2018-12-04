@@ -10,7 +10,8 @@ RSpec.describe Meal do
                               :meal,
                               name: meal_name,
                               time_period: time_period,
-                              uuid: uuid ) }
+                              uuid: uuid
+                            ) }
     it '.name' do
       expect( meal.name ).to eq meal_name
     end
