@@ -1,4 +1,5 @@
 class Ingredient < ActiveRecord::Base
+  include UUID
 
   #----------------------------------------------------------------------------
   # attributes

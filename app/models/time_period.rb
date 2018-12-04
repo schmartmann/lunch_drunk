@@ -1,9 +1,11 @@
 class TimePeriod < ActiveRecord::Base
+  include UUID
 
   #----------------------------------------------------------------------------
   # attributes
 
   ATTRIBUTES = %i(
+    uuid
     name
   ).freeze
 
