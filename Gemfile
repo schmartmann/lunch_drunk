@@ -10,6 +10,8 @@ gem 'rails', '~> 5.1.5'
 
 gem 'rspec', '~> 3.0'
 
+gem 'factory_bot_rails'
+
 gem 'pg'
 # Use Puma as the app server
 gem 'puma', '~> 3.7'
@@ -43,9 +45,8 @@ group :development, :test do
 end
 
 group :development do
-  gem 'factory_bot_rails'
-
   # Access an IRB console on exception pages or by using <%= console %> anywhere in the code.
+  gem 'rspec-rails', '~> 3.0'
   gem 'web-console', '>= 3.3.0'
   gem 'listen', '>= 3.0.5', '< 3.2'
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
