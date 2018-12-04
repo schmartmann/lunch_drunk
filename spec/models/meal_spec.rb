@@ -24,7 +24,9 @@ RSpec.describe Meal do
     end
 
     it '.ingredients' do
-      expect( meal.ingredients.first.uuid ).to eq ingredient.uuid 
+      ingredients = meal.ingredients
+      expect( ingredients.any? ).to eq true
+      expect( ingredients.first.uuid ).to eq ingredient.uuid
     end
   end
 end
