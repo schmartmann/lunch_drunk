@@ -5,7 +5,6 @@ class TimePeriod < ActiveRecord::Base
 
   ATTRIBUTES = %i(
     name
-    uuid
   ).freeze
 
 
