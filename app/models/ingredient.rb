@@ -34,7 +34,12 @@ class Ingredient < ActiveRecord::Base
     kg
   )
 
-  UNITS = VOLUME_UNITS.concat( MASS_UNITS ).freeze
+  WHOLE_UNITS = %w(
+    item
+    x
+  )
+
+  UNITS = VOLUME_UNITS.concat( MASS_UNITS ).concat( WHOLE_UNITS ).freeze
 
   #----------------------------------------------------------------------------
   # validations

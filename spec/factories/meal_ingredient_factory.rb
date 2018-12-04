@@ -1,6 +1,7 @@
 FactoryBot.define do
-  factory :time_period do
-    name { 'breakfast' }
+  factory :meal_ingredient do
     uuid { SecureRandom.hex }
+    meal
+    ingredient
   end
 end
