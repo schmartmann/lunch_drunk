@@ -1,7 +1,7 @@
 FactoryBot.define do
   factory :ingredient do
     uuid     { SecureRandom.hex }
-    name     { 'egg' }
+    name     { "#{ Faker::Food.dish }-#{ SecureRandom.hex }" }
     unit     { 'x' }
     quantity { 6 }
   end
