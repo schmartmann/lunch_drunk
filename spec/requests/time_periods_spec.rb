@@ -58,4 +58,11 @@ RSpec.describe 'time_period controller', type: :request do
       expect( response.content_type ).to eq( 'application/json' )
     end
   end
+
+  context '#write' do
+    
+  end
+
+  context '#destroy' do
+  end
 end
