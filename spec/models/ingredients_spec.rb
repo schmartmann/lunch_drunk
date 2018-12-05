@@ -13,15 +13,6 @@ RSpec.describe Ingredient do
                                quantity: 1,
                                uuid: uuid
                              ) }
-    let( :meal )             { FactoryBot.create(
-                               name: Faker::Food.dish,
-                               time_period: time_period
-                             ) }
-    let( :meal_ingredient )  { FactoryBot.create(
-                                ingredient: ingredient,
-                                meal: meal
-                             ) }
-
 
     it '.name' do
       expect( ingredient.name ).to eq ingredient_name
@@ -32,7 +23,17 @@ RSpec.describe Ingredient do
     end
 
     it '.meals' do
+      meal = FactoryBot.create(
+        :meal,
+        name: Faker::Food.dish,
+        time_period: time_period
+      )
 
+      FactoryBot.create(
+        :meal_ingredient,
+        meal: meal,
+        ingredient: ingredient
+      )
 
       meals = ingredient.meals
       expect( meals.any? ).to eq true

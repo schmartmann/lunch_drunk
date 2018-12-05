@@ -61,6 +61,7 @@ class Ingredient < ActiveRecord::Base
   #----------------------------------------------------------------------------
   # associations
 
+  # has_and_belongs_to_many :ingredients
   has_many  :meal_ingredients, dependent: :destroy
   has_many  :meals, through: :meal_ingredients
 end
