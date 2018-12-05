@@ -38,6 +38,7 @@ gem 'jbuilder', '~> 2.5'
 
 group :development, :test do
   gem 'pry'
+  gem 'pry-nav'
   gem 'faker'
 
   # Adds support for Capybara system testing and selenium driver
@@ -47,6 +48,7 @@ end
 
 group :development do
   gem 'pry'
+  gem 'pry-nav'
   # Access an IRB console on exception pages or by using <%= console %> anywhere in the code.
   gem 'rspec-rails', '~> 3.0'
   gem 'web-console', '>= 3.3.0'
