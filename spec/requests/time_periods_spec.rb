@@ -74,18 +74,30 @@ RSpec.describe 'time_period controller', type: :request do
       expect( response.status ).to eq 200
       expect( JSON.parse( response.body )[ 'name' ] ).to eq( 'lunch' )
     end
+
+    it 'fails without valid attributes' do
+      post '/time_periods', params: { time_period: { name: nil } }, headers: {
+        'Accept': 'application/json'
+      }
+
+      binding.pry
+
+      expect( response.status ).to eq 400
+    end
   end
 
   context '#destroy' do
     context 'when resource is found' do
-      binding.pry
-      @time_period = FactoryBot.create( :time_period, name: 'lunch' )
-      uuid = @time_period.uuid
-      delete "time_periods/#{ uuid }"
+      it 'returns nil' do
+        @time_period = FactoryBot.create( :time_period, name: 'lunch' )
+        uuid = @time_period.uuid
 
-      time_period = TimePeriod.find_by( uuid )
+        delete "/time_periods/#{ uuid }"
 
-      expect( time_period ).to_be nil
+        time_period = TimePeriod.find_by( uuid: uuid )
+
+        expect( time_period ).to_be nil
+      end
     end
 
     context 'when resource isn\'t found' do
