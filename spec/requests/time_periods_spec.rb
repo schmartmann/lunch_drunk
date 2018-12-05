@@ -60,9 +60,36 @@ RSpec.describe 'time_period controller', type: :request do
   end
 
   context '#write' do
-    
+    it 'successfully writes new time_period' do
+      post '/time_periods', params: { time_period: { name: 'lunch' } }
+
+      expect( response.status ).to eq 302
+    end
+
+    it 'successfully writes new time_period' do
+      post '/time_periods', params: { time_period: { name: 'lunch' } }, headers: {
+        'Accept': 'application/json'
+      }
+
+      expect( response.status ).to eq 200
+      expect( JSON.parse( response.body )[ 'name' ] ).to eq( 'lunch' )
+    end
   end
 
   context '#destroy' do
+    context 'when resource is found' do
+      binding.pry
+      @time_period = FactoryBot.create( :time_period, name: 'lunch' )
+      uuid = @time_period.uuid
+      delete "time_periods/#{ uuid }"
+
+      time_period = TimePeriod.find_by( uuid )
+
+      expect( time_period ).to_be nil
+    end
+
+    context 'when resource isn\'t found' do
+
+    end
   end
 end
