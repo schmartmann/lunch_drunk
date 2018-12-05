@@ -1,10 +1,29 @@
 require 'rails_helper'
 
 RSpec.describe "time_period #index", type: :request do
-  it 'request returns 200' do
-    time_period = FactoryBot.create( :time_period )
+  before( :all ) do
+    @time_period = FactoryBot.create( :time_period )
+  end
 
-    response = get '/time_periods'
-    expect( response.response_code ).to eq 200
+  it 'renders template' do
+    get '/time_periods'
+
+    expect( response ).to render_template( :query )
+  end
+
+  it 'doesn\'t render different template' do
+    get '/time_periods'
+
+    expect( response ).to_not render_template( :show )
+  end
+
+  it 'renders JSON' do
+    headers = {
+      'Accept': 'application/json'
+    }
+
+    get '/time_periods', headers: headers
+
+    expect( response.content_type ).to eq( 'application/json' )
   end
 end
