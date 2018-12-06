@@ -29,10 +29,7 @@ class TimePeriodsController < ApplicationController
         }
        end
     else
-      render json: {
-        error: "Could not find time period #{ params[ :uuid ] }"
-      },
-      status: :not_found
+      not_found_error( params )
     end
   end
 
@@ -84,10 +81,7 @@ class TimePeriodsController < ApplicationController
         }
       end
     rescue
-      render json: {
-        error: 'Record couldn\'t be found',
-      },
-      status: :not_found
+      not_found_error( params )
     end
   end
 

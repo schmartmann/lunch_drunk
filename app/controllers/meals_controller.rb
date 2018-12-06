@@ -42,10 +42,7 @@ class MealsController < ApplicationController
         }
       end
     else
-      render json: {
-        error: "Could not find meal #{ params[ :uuid ] }"
-      },
-      status: :not_found
+      not_found_error( params )
     end
   end
 
@@ -97,10 +94,7 @@ class MealsController < ApplicationController
         }
       end
     rescue
-      render json: {
-        error: 'Record couldn\'t be found',
-      },
-      status: :not_found
+      not_found_error( params )
     end
   end
 
