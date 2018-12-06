@@ -8,23 +8,7 @@ class MealsController < ApplicationController
   ].freeze
 
   def query
-    if meals.any?
-      respond_to do | format |
-        format.html
-        format.json {
-          render json: {
-            meals: [
-              meals
-            ]
-          }
-        }
-      end
-    else
-      render json: {
-        message: "No meals found for time period #{ time_period.uuid }"
-      },
-      status: :not_found
-    end
+    query_helper
   end
 
   def read

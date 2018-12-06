@@ -7,21 +7,7 @@ class IngredientsController < ApplicationController
   ].freeze
 
   def query
-    if existing_ingredients.any?
-      respond_to do | format |
-        format.html
-        format.json {
-          render json: {
-            ingredients: existing_ingredients
-          }
-        }
-      end
-    else
-      render json: {
-        message: "No ingredients found"
-      },
-      status: :not_found
-    end
+    query_helper
   end
 
   def read
@@ -94,15 +80,11 @@ class IngredientsController < ApplicationController
   end
 
   def existing_ingredients
-    @ingredients ||= Ingredient.all
+    @ingredients ||= query_helper
   end
 
   def existing_ingredient
-    @ingredient ||=
-      Ingredient
-        .where(
-          uuid: params[ :uuid ]
-        ).first
+    @ingredient ||= read_helper
   end
 
   private; def ingredient_params

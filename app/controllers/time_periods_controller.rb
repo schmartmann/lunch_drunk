@@ -5,14 +5,7 @@ class TimePeriodsController < ApplicationController
   ].freeze
 
   def query
-    @time_periods = TimePeriod.all
-
-    respond_to do | format |
-      format.html
-      format.json {
-        render json: @time_periods
-      }
-     end
+    query_helper
   end
 
   def read
@@ -20,14 +13,13 @@ class TimePeriodsController < ApplicationController
       respond_to do | format |
         format.html
         format.json {
-          render json:
-          {
-            time_periods: [
+          render json: {
+            time_period: [
               existing_time_period
             ]
           }
         }
-       end
+      end
     else
       not_found_error( params )
     end
