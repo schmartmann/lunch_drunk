@@ -118,11 +118,11 @@ class MealsController < ApplicationController
   private; def existing_meal
     @meal ||=
       time_period
-      .meals
-      .joins( :ingredients )
-      .where(
-        uuid: params[ :uuid ]
-      ).first
+        .meals
+        .joins( :ingredients )
+        .where(
+          uuid: params[ :uuid ]
+        ).first
   end
 
   private; def meal_params
