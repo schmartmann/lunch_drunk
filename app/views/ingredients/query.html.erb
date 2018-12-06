@@ -1,0 +1,6 @@
+<% @ingredients.each do | ingredient | %>
+  <section>
+    <h3><%= ingredient.name %></h3>
+    <p><%= ingredient.quantity %> <%= ingredient.unit %></p>
+  </section>
+<% end %>

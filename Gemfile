@@ -12,6 +12,8 @@ gem 'rspec', '~> 3.0'
 
 gem 'factory_bot_rails'
 
+gem 'active_model_serializers'
+
 gem 'pg'
 # Use Puma as the app server
 gem 'puma', '~> 3.7'
@@ -38,8 +40,9 @@ gem 'jbuilder', '~> 2.5'
 
 group :development, :test do
   gem 'pry'
+  gem 'pry-nav'
+  gem 'rails-controller-testing'
   gem 'faker'
-
   # Adds support for Capybara system testing and selenium driver
   gem 'capybara', '~> 2.13'
   gem 'selenium-webdriver'
@@ -47,6 +50,10 @@ end
 
 group :development do
   gem 'pry'
+  gem 'pry-nav'
+  gem 'rails-controller-testing'
+  gem 'faker'
+
   # Access an IRB console on exception pages or by using <%= console %> anywhere in the code.
   gem 'rspec-rails', '~> 3.0'
   gem 'web-console', '>= 3.3.0'

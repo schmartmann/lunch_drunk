@@ -14,7 +14,9 @@ class TimePeriod < ActiveRecord::Base
   # validations
 
   validates :name,
-            presence: true
+            presence: true,
+            uniqueness: { case_sensitive: false },
+            allow_blank: false
 
   #----------------------------------------------------------------------------
   # associations
