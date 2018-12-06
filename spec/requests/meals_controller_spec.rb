@@ -37,7 +37,8 @@ RSpec.describe 'meal controller', type: :request do
       it 'returns 404' do
         get '/meals', params: { time_period_uuid: nil }
 
-        binding.pry
+        expect( response.status ).to eq( 404 )
+        expect( response.message ).to eq( 'Not Found' )
       end
     end
   end
@@ -78,65 +79,171 @@ RSpec.describe 'meal controller', type: :request do
         expect( returned_uuid ).to eq( uuid )
       end
     end
+
+    context 'without valid time_period_uuid' do
+      it 'doesn\'t render template' do
+        get "/meals/#{ @meal.uuid }", params: { time_period_uuid: nil }
+
+        expect( response ).to_not render_template( :read )
+      end
+
+      it 'returns 404' do
+        get "/meals/#{ @meal.uuid }", params: { time_period_uuid: nil }
+
+        expect( response.status ).to eq( 404 )
+      end
+    end
+
+    context 'without valid uuid' do
+      it 'doesn\'t render template' do
+        get "/meals/#{ nil }", params: { time_period_uuid: @time_period.uuid }
+
+        expect( response ).to_not render_template( :read )
+      end
+
+      it 'returns 404' do
+        bad_uuid = SecureRandom.hex
+
+        get "/meals/#{ bad_uuid }", params: { time_period_uuid: @time_period.uuid }
+
+        expect( response.status ).to eq( 404 )
+      end
+    end
   end
 
   context '#write' do
-    # it 'successfully writes new time_period' do
-    #   name = "#{ Faker::Name.last_name}-#{ SecureRandom.hex }"
-    #   post write_time_period_path, params: { time_period: { name: name } }
-    #
-    #   expect( response.status ).to eq 302
-    # end
-    #
-    # it 'successfully writes new time_period' do
-    #   name = "#{ Faker::Name.last_name}-#{ SecureRandom.hex }"
-    #
-    #   post '/time_periods', params: { time_period: { name: name } }, headers: {
-    #     'Accept': 'application/json'
-    #   }
-    #
-    #   returned_name = JSON.parse( response.body )[ 'time_periods' ].first[ 'name' ]
-    #
-    #   expect( response.status ).to eq 200
-    #   expect( returned_name ).to eq( name )
-    # end
-    #
-    # it 'fails without valid attributes' do
-    #   post '/time_periods', params: { time_period: { name: nil } }, headers: {
-    #     'Accept': 'application/json'
-    #   }
-    #
-    #   error = JSON.parse( response.body )[ 'error' ].first
-    #
-    #   expect(  error ).to eq 'Name can\'t be blank'
-    #   expect( response.status ).to eq 422
-    # end
+    context 'with valid attributes' do
+      it 'creates new meal' do
+        name = "#{ Faker::Name.last_name}-#{ SecureRandom.hex }"
+        params = {
+          meal: {
+            name: name
+          },
+          time_period_uuid: @time_period.uuid
+        }
+
+        post '/meals', params: params
+
+        meal = Meal.where(
+          name: name,
+          time_period_id: @time_period.id
+        ).first
+
+        expect( meal ).to_not be( nil )
+        expect( response.status ).to eq 302
+      end
+
+      it 'returns new meal as JSON' do
+        name = "#{ Faker::Name.last_name}-#{ SecureRandom.hex }"
+        params = {
+          meal: {
+            name: name
+          },
+          time_period_uuid: @time_period.uuid
+        }
+
+        headers = {
+          'Accept': 'application/json'
+        }
+
+        post '/meals', params: params, headers: headers
+
+        returned_meal = JSON.parse( response.body )[ 'meals' ].first
+
+        uuid = Meal.where(
+          uuid: returned_meal[ 'uuid' ]
+        ).first.uuid
+
+        expect( returned_meal ).to_not be( nil )
+        expect( returned_meal[ 'uuid' ] ).to eq( uuid )
+        expect( response.status ).to eq( 200 )
+      end
+    end
+
+    context 'without valid attributes' do
+      it 'fails without meal.name' do
+        name = nil
+
+        params = {
+          meal: {
+            name: name
+          },
+          time_period_uuid: @time_period.uuid
+        }
+
+        post '/meals', params: params
+
+        meal = Meal.where(
+          name: name,
+          time_period_id: @time_period.id
+        ).first
+
+        expect( meal ).to be( nil )
+        expect( response.status ).to eq 422
+      end
+
+      it 'fails without time_period' do
+        name = "#{ Faker::Name.last_name}-#{ SecureRandom.hex }"
+
+        params = {
+          meal: {
+            name: name
+          },
+          time_period_uuid: nil
+        }
+
+        post '/meals', params: params
+
+        meal = Meal.where(
+          name: name,
+          time_period_id: @time_period.id
+        ).first
+
+        expect( meal ).to be( nil )
+        expect( response.status ).to eq 404
+      end
+    end
   end
 
   context '#destroy' do
-    # context 'when resource is found' do
-    #   it 'returns nil' do
-    #     name = "#{ Faker::Name.last_name}-#{ SecureRandom.hex }"
-    #     @time_period = FactoryBot.create( :time_period, name: name )
-    #     uuid = @time_period.uuid
-    #
-    #     delete "/time_periods/#{ uuid }", params: { time_period: { name: name, uuid: uuid } }
-    #
-    #     time_period = TimePeriod.find_by( uuid: uuid )
-    #
-    #     expect( time_period ).to be( nil )
-    #     expect( response ).to redirect_to( time_periods_path )
-    #   end
-    # end
-    #
-    # context 'when resource isn\'t found' do
-    #   it 'returns error' do
-    #     bad_uuid = SecureRandom.hex
-    #     delete "/time_periods/#{ bad_uuid }", params: { time_period: { name: 'wolf cola', uuid: bad_uuid } }
-    #
-    #     expect( response.status ).to eq( 404 )
-    #     expect( response.message ).to eq( 'Not Found' )
-    #   end
-    # end
+    context 'when resource is found' do
+      it 'returns nil' do
+        uuid = @meal.uuid
+        time_period_uuid = @time_period.uuid
+
+        params = {
+          meal: {
+            uuid: uuid
+          },
+          time_period_uuid: time_period_uuid
+        }
+
+        delete "/meals/#{ uuid }", params: params
+
+        meal = Meal.find_by( uuid: uuid )
+
+        expect( meal ).to be( nil )
+        expect( response ).to redirect_to( meals_path )
+      end
+    end
+
+    context 'when resource isn\'t found' do
+      it 'returns error' do
+        bad_uuid = SecureRandom.hex
+
+        params = {
+          meal: {
+            name: 'wolf cola',
+            uuid: bad_uuid
+          },
+          time_period_uuid: @time_period_uuid
+        }
+
+        delete "/meals/#{ bad_uuid }", params: params
+
+        expect( response.status ).to eq( 404 )
+        expect( response.message ).to eq( 'Not Found' )
+      end
+    end
   end
 end

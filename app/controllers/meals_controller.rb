@@ -82,6 +82,27 @@ class MealsController < ApplicationController
     end
   end
 
+  def destroy
+    begin
+      existing_meal.destroy
+
+      respond_to do | format |
+        format.html {
+          redirect_to meals_path
+        }
+        format.json {
+          render json: {
+            message: "#{ existing_meal.name } successfully destroyed"
+          }
+        }
+      end
+    rescue
+      render json: {
+        error: 'Record couldn\'t be found',
+      },
+      status: :not_found
+    end
+  end
 
   private; def time_period
     @time_period ||=
@@ -108,6 +129,11 @@ class MealsController < ApplicationController
   end
 
   private; def require_time_period
-    binding.pry
+    unless params[ :time_period_uuid ]
+      render json: {
+        error: 'Missing required parameter: time_period_uuid'
+      },
+      status: 404
+    end
   end
 end
