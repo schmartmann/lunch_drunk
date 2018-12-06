@@ -2,11 +2,16 @@ require 'rails_helper'
 
 RSpec.describe TimePeriod do
   describe 'model methods' do
+    let( :name )        { Faker::Name.last_name }
     let( :uuid )        { SecureRandom.hex }
-    let( :time_period ) { FactoryBot.create( :time_period, uuid: uuid ) }
+    let( :time_period ) { FactoryBot.create(
+                          :time_period,
+                          name: name,
+                          uuid: uuid
+                        ) }
 
     it '.name' do
-      expect( time_period.name ).to eq 'breakfast'
+      expect( time_period.name ).to eq name
     end
 
     it '.uuid' do

@@ -3,6 +3,7 @@ require 'rails_helper'
 RSpec.describe 'time_period controller', type: :request do
   before( :all ) do
     @time_period = FactoryBot.create( :time_period )
+    @name = @time_period.name
   end
 
   context '#query' do
@@ -61,18 +62,23 @@ RSpec.describe 'time_period controller', type: :request do
 
   context '#write' do
     it 'successfully writes new time_period' do
-      post '/time_periods', params: { time_period: { name: 'lunch' } }
+      name = "#{ Faker::Name.last_name}-#{ SecureRandom.hex }"
+      post write_time_period_path, params: { time_period: { name: name } }
 
       expect( response.status ).to eq 302
     end
 
     it 'successfully writes new time_period' do
-      post '/time_periods', params: { time_period: { name: 'lunch' } }, headers: {
+      name = "#{ Faker::Name.last_name}-#{ SecureRandom.hex }"
+
+      post '/time_periods', params: { time_period: { name: name } }, headers: {
         'Accept': 'application/json'
       }
 
+      returned_name = JSON.parse( response.body )[ 'time_periods' ].first[ 'name' ]
+
       expect( response.status ).to eq 200
-      expect( JSON.parse( response.body )[ 'name' ] ).to eq( 'lunch' )
+      expect( returned_name ).to eq( name )
     end
 
     it 'fails without valid attributes' do
@@ -80,28 +86,37 @@ RSpec.describe 'time_period controller', type: :request do
         'Accept': 'application/json'
       }
 
-      binding.pry
+      error = JSON.parse( response.body )[ 'error' ].first
 
-      expect( response.status ).to eq 400
+      expect(  error ).to eq 'Name can\'t be blank'
+      expect( response.status ).to eq 422
     end
   end
 
   context '#destroy' do
     context 'when resource is found' do
       it 'returns nil' do
-        @time_period = FactoryBot.create( :time_period, name: 'lunch' )
+        name = "#{ Faker::Name.last_name}-#{ SecureRandom.hex }"
+        @time_period = FactoryBot.create( :time_period, name: name )
         uuid = @time_period.uuid
 
-        delete "/time_periods/#{ uuid }"
+        delete "/time_periods/#{ uuid }", params: { time_period: { name: name, uuid: uuid } }
 
         time_period = TimePeriod.find_by( uuid: uuid )
 
-        expect( time_period ).to_be nil
+        expect( time_period ).to be( nil )
+        expect( response ).to redirect_to( time_periods_path )
       end
     end
 
     context 'when resource isn\'t found' do
+      it 'returns error' do
+        bad_uuid = SecureRandom.hex
+        delete "/time_periods/#{ bad_uuid }", params: { time_period: { name: 'wolf cola', uuid: bad_uuid } }
 
+        expect( response.status ).to eq( 404 )
+        expect( response.message ).to eq( 'Not Found' )
+      end
     end
   end
 end

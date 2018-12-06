@@ -1,6 +1,8 @@
+require 'faker'
+
 FactoryBot.define do
   factory :time_period do
-    name { 'breakfast' }
+    name { "#{ Faker::Name.last_name }-#{ SecureRandom.hex }" }
     uuid { SecureRandom.hex }
 
     after( :create ) do | time_period |
