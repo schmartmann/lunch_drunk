@@ -16,19 +16,24 @@ class TimePeriodsController < ApplicationController
   end
 
   def read
-    existing_time_period
-
-    respond_to do | format |
-      format.html
-      format.json {
-        render json:
-        {
-          time_periods: [
-            existing_time_period
-          ]
+    if existing_time_period
+      respond_to do | format |
+        format.html
+        format.json {
+          render json:
+          {
+            time_periods: [
+              existing_time_period
+            ]
+          }
         }
-      }
-     end
+       end
+    else
+      render json: {
+        error: "Could not find time period #{ params[ :uuid ] }"
+      },
+      status: :not_found
+    end
   end
 
   def write

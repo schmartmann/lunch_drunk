@@ -31,32 +31,42 @@ RSpec.describe 'time_period controller', type: :request do
   end
 
   context '#read' do
-    it 'renders template' do
-      uuid = @time_period.uuid
+    context 'with valid uuid' do
+      it 'renders template' do
+        uuid = @time_period.uuid
 
-      get "/time_periods/#{ uuid }"
+        get "/time_periods/#{ uuid }"
 
-      expect( response ).to render_template( :read )
+        expect( response ).to render_template( :read )
+      end
+
+      it 'doesn\'t render different template' do
+        uuid = @time_period.uuid
+
+        get "/time_periods/#{ uuid }"
+
+        expect( response ).to_not render_template( :index )
+      end
+
+      it 'renders JSON' do
+        uuid = @time_period.uuid
+
+        headers = {
+          'Accept': 'application/json'
+        }
+
+        get "/time_periods/#{ uuid }", headers: headers
+
+        expect( response.content_type ).to eq( 'application/json' )
+      end
     end
 
-    it 'doesn\'t render different template' do
-      uuid = @time_period.uuid
+    context 'without valid uuid' do
+      it 'returns 404' do
+        get "/time_periods/#{ SecureRandom.hex }"
 
-      get "/time_periods/#{ uuid }"
-
-      expect( response ).to_not render_template( :index )
-    end
-
-    it 'renders JSON' do
-      uuid = @time_period.uuid
-
-      headers = {
-        'Accept': 'application/json'
-      }
-
-      get "/time_periods/#{ uuid }", headers: headers
-
-      expect( response.content_type ).to eq( 'application/json' )
+        expect( response.status ).to eq( 404 )
+      end
     end
   end
 
