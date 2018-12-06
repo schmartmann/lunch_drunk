@@ -119,6 +119,7 @@ class MealsController < ApplicationController
     @meal ||=
       time_period
       .meals
+      .joins( :ingredients )
       .where(
         uuid: params[ :uuid ]
       ).first
