@@ -37,7 +37,7 @@ class TimePeriodsController < ApplicationController
   end
 
   def write
-    time_period = TimePeriod.create(
+    time_period = TimePeriod.new(
       time_period_params
     )
 
