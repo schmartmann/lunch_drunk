@@ -4,10 +4,11 @@ Rails.application.routes.draw do
   post   '/time_periods',        to: 'time_periods#write',    as: 'write_time_period'
   delete '/time_periods/:uuid',  to: 'time_periods#destroy',  as: 'destroy_time_period'
 
-  get    '/meals',        to: 'meals#query',    as: 'meals'
-  get    '/meals/:uuid',  to: 'meals#read',     as: 'meal'
-  post   '/meals',        to: 'meals#write',    as: 'write_meal'
-  delete '/meals/:uuid',  to: 'meals#destroy',  as: 'destroy_meal'
+  get    '/meals',          to: 'meals#query',    as: 'meals'
+  get    '/meals/shuffle',  to: 'meals#shuffle',  as: 'meals_shuffle'
+  get    '/meals/:uuid',    to: 'meals#read',     as: 'meal'
+  post   '/meals',          to: 'meals#write',    as: 'write_meal'
+  delete '/meals/:uuid',    to: 'meals#destroy',  as: 'destroy_meal'
 
   get    '/ingredients',        to: 'ingredients#query',    as: 'ingredients'
   get    '/ingredients/:uuid',  to: 'ingredients#read',     as: 'ingredient'
