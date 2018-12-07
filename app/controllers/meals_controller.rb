@@ -11,6 +11,18 @@ class MealsController < ApplicationController
     query_helper
   end
 
+  def shuffle
+    if params[ :uuid ]
+      @meal = time_period.meals.where.not( uuid: params[ :uuid ] ).sample
+    else
+      @meal = time_period.meals.sample
+    end
+
+    render json: {
+      meals: [ @meal ]
+    }
+  end
+
   def read
     if existing_meal
 

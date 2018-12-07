@@ -246,4 +246,45 @@ RSpec.describe 'meal controller', type: :request do
       end
     end
   end
+
+  context '#shuffle' do
+    context 'without meal_uuid' do
+      it 'returns valid JSON' do
+        params = {
+          time_period_uuid: @time_period.uuid,
+          uuid: nil
+        }
+
+        headers = {
+          'Accept': 'application/json'
+        }
+
+        get '/meals/shuffle', params: params, headers: headers
+
+        body = JSON.parse( response.body )
+        meals = body[ 'meals' ]
+
+        expect( response.status ).to eq( 200 )
+        expect( meals.any? ).to be( true )
+      end
+    end
+
+    context 'with meal_uuid' do
+      it 'doesn\'t return the same record twice' do
+        uuid = @meal.uuid
+
+        params = {
+          time_period_uuid: @time_period.uuid,
+          uuid: uuid
+        }
+
+        get '/meals/shuffle', params: params
+
+        meal = JSON.parse( response.body )[ 'meals' ].first
+
+        expect( response.status ).to eq( 200 )
+        expect( meal[ 'uuid' ] ).to_not eq( uuid )
+      end
+    end
+  end
 end
