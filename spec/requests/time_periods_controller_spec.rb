@@ -143,7 +143,15 @@ RSpec.describe 'time_period controller', type: :request do
     context 'when resource isn\'t found' do
       it 'returns error' do
         bad_uuid = SecureRandom.hex
-        delete "/time_periods/#{ bad_uuid }", params: { time_period: { name: 'wolf cola', uuid: bad_uuid } }
+
+        params = {
+          time_period: {
+            name: 'wolf cola',
+            uuid: bad_uuid
+          }
+        }
+
+        delete "/time_periods/#{ bad_uuid }", params: params
 
         expect( response.status ).to eq( 404 )
         expect( response.message ).to eq( 'Not Found' )

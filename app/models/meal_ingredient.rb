@@ -14,10 +14,12 @@ class MealIngredient < ActiveRecord::Base
   # validations
 
   validates :meal_id,
-            presence: true
+            presence: true,
+            uniqueness: { scope: :ingredient_id }
 
   validates :ingredient_id,
-            presence: true
+            presence: true,
+            uniqueness: { scope: :meal_id }
 
   #----------------------------------------------------------------------------
   # associations
