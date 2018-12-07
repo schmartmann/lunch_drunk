@@ -123,7 +123,8 @@ RSpec.describe 'time_period controller', type: :request do
           create( :meal, time_period: @time_period )
         end
 
-        uuids = time_period.meals.pluck( :uuid )
+        uuid = @time_period.uuid
+        uuids = @time_period.meals.pluck( :uuid )
 
         params = {
           time_period: {
@@ -131,7 +132,7 @@ RSpec.describe 'time_period controller', type: :request do
             }
           }
 
-        delete "/time_periods/#{ uuid }",
+        delete "/time_periods/#{ uuid }", params: params
 
         dependent_meals = Meal.where( uuid: uuids )
 

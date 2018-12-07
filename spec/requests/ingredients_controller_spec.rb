@@ -270,7 +270,7 @@ RSpec.describe 'ingredients controller', type: :request do
         expect( response.status ).to eq 422
       end
 
-      it 'fails with dupicate ingredient.name' do
+      it 'disallows duplicates' do
         @ingredient = FactoryBot.create(
           :ingredient,
           name: 'wolf cola',
@@ -278,23 +278,20 @@ RSpec.describe 'ingredients controller', type: :request do
           unit: 'fl_oz'
         )
 
-        name = 'wolf cola'
-        quantity = 12
-        unit = 'fl_oz'
-
         params = {
           ingredient: {
-            name: name,
-            unit: unit,
-            quantity: quantity
+            name: 'wolf cola',
+            quantity: 12,
+            unit: 'fl_oz'
           }
         }
 
         post '/ingredients', params: params
 
-        binding.pry
+        body = JSON.parse( response.body )
 
-        expect( ingredient ).to be( nil )
+        expect( body[ 'error' ].any? ).to be( true )
+        expect( body[ 'error' ].first ).to eq( 'Name has already been taken' )
         expect( response.status ).to eq 422
       end
     end
