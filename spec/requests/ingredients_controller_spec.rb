@@ -223,6 +223,77 @@ RSpec.describe 'ingredients controller', type: :request do
         expect( ingredient ).to be( nil )
         expect( response.status ).to eq 422
       end
+
+      it 'fails with invalid ingredient.quantity' do
+        name = "#{ Faker::Name.last_name}-#{ SecureRandom.hex }"
+        quantity = 'asdfasdfasdfasdf'
+        unit = 'fl_oz'
+
+        params = {
+          ingredient: {
+            name: name,
+            unit: unit,
+            quantity: quantity
+          }
+        }
+
+        post '/ingredients', params: params
+
+        ingredient = Ingredient.where(
+          name: name
+        ).first
+
+        expect( ingredient ).to be( nil )
+        expect( response.status ).to eq 422
+      end
+
+      it 'fails with invalid ingredient.quantity' do
+        name = "#{ Faker::Name.last_name}-#{ SecureRandom.hex }"
+        quantity = 1
+        unit = 'wolf cola: a public relations nightmare'
+
+        params = {
+          ingredient: {
+            name: name,
+            unit: unit,
+            quantity: quantity
+          }
+        }
+
+        post '/ingredients', params: params
+
+        ingredient = Ingredient.where(
+          name: name
+        ).first
+
+        expect( ingredient ).to be( nil )
+        expect( response.status ).to eq 422
+      end
+
+      it 'disallows duplicates' do
+        @ingredient = FactoryBot.create(
+          :ingredient,
+          name: 'wolf cola',
+          quantity: 12,
+          unit: 'fl_oz'
+        )
+
+        params = {
+          ingredient: {
+            name: 'wolf cola',
+            quantity: 12,
+            unit: 'fl_oz'
+          }
+        }
+
+        post '/ingredients', params: params
+
+        body = JSON.parse( response.body )
+
+        expect( body[ 'error' ].any? ).to be( true )
+        expect( body[ 'error' ].first ).to eq( 'Name has already been taken' )
+        expect( response.status ).to eq 422
+      end
     end
   end
 
