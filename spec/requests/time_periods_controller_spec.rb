@@ -117,6 +117,26 @@ RSpec.describe 'time_period controller', type: :request do
         expect( time_period ).to be( nil )
         expect( response ).to redirect_to( time_periods_path )
       end
+
+      it 'destroys dependent resources' do
+        10.times do
+          create( :meal, time_period: @time_period )
+        end
+
+        uuids = time_period.meals.pluck( :uuid )
+
+        params = {
+          time_period: {
+            uuid: uuid
+            }
+          }
+
+        delete "/time_periods/#{ uuid }",
+
+        dependent_meals = Meal.where( uuid: uuids )
+
+        expect( dependent_meals.blank? ).to be( true )
+      end
     end
 
     context 'when resource isn\'t found' do
