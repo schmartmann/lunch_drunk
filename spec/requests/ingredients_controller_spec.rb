@@ -345,7 +345,7 @@ RSpec.describe 'ingredients controller', type: :request do
           ingredient_ids: ingredient_ids
         }
 
-        get '/ingredients/filter', params: params
+        get '/ingredients_filter', params: params
 
         expect( response.status ).to eq( 200 )
       end
