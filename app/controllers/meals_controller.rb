@@ -18,8 +18,11 @@ class MealsController < ApplicationController
       @meal = time_period.meals.sample
     end
 
+    @ingredients = @meal.ingredients
+
     render json: {
-      meals: [ @meal ]
+      meals: [ @meal ],
+      ingredients: @ingredients
     }
   end
 
