@@ -262,10 +262,16 @@ RSpec.describe 'meal controller', type: :request do
         get '/meals/shuffle', params: params, headers: headers
 
         body = JSON.parse( response.body )
-        meals = body[ 'meals' ]
+        meal = body[ 'meals' ].first
+        ingredients = body[ 'ingredients' ]
+
+        expected_ingredient_uuids = Meal.find_by( uuid: meal[ 'uuid' ] ).ingredients.pluck( :id )
+        response_ingredients_uuids = ingredients.pluck( 'id' )
 
         expect( response.status ).to eq( 200 )
-        expect( meals.any? ).to be( true )
+        expect( meal.present? ).to be( true )
+        expect( ingredients.any? ).to be( true )
+        expect( expected_ingredient_uuids ).to eq( expected_ingredient_uuids )
       end
     end
 
@@ -280,10 +286,17 @@ RSpec.describe 'meal controller', type: :request do
 
         get '/meals/shuffle', params: params
 
-        meal = JSON.parse( response.body )[ 'meals' ].first
+        body = JSON.parse( response.body )
+        meal = body[ 'meals' ].first
+        ingredients = body[ 'ingredients' ]
+
+        expected_ingredient_uuids = Meal.find_by( uuid: meal[ 'uuid' ] ).ingredients.pluck( :id )
+        response_ingredients_uuids = ingredients.pluck( 'id' )
 
         expect( response.status ).to eq( 200 )
         expect( meal[ 'uuid' ] ).to_not eq( uuid )
+        expect( ingredients.any? ).to be( true )
+        expect( expected_ingredient_uuids ).to eq( response_ingredients_uuids )
       end
     end
   end
