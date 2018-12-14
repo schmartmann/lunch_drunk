@@ -259,7 +259,7 @@ RSpec.describe 'meal controller', type: :request do
           'Accept': 'application/json'
         }
 
-        get '/meals/shuffle', params: params, headers: headers
+        get '/meals_shuffle', params: params, headers: headers
 
         body = JSON.parse( response.body )
         meal = body[ 'meals' ].first
@@ -284,7 +284,7 @@ RSpec.describe 'meal controller', type: :request do
           uuid: uuid
         }
 
-        get '/meals/shuffle', params: params
+        get '/meals_shuffle', params: params
 
         body = JSON.parse( response.body )
         meal = body[ 'meals' ].first
