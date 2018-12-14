@@ -3,8 +3,7 @@ class IngredientsController < ApplicationController
     :name,
     :quantity,
     :unit,
-    :uuid,
-    :ingredients_ids
+    :uuid
   ].freeze
 
   def query
@@ -59,10 +58,6 @@ class IngredientsController < ApplicationController
       },
       status: :unprocessable_entity
     end
-  end
-
-  def filter
-    binding.pry
   end
 
   def destroy

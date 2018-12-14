@@ -14,8 +14,8 @@ Rails.application.routes.draw do
   get    '/ingredients/:uuid',   to: 'ingredients#read',     as: 'ingredient'
   post   '/ingredients',         to: 'ingredients#write',    as: 'write_ingredient'
   delete '/ingredients/:uuid',   to: 'ingredients#destroy',  as: 'destroy_ingredient'
-  get    '/ingredients_filter',  to: 'ingredients#filter',   as: 'filter_ingredient'
 
+  get    '/meal_ingredients',       to: 'meal_ingredients#query', as: 'meal_ingredients'
   post   '/meal_ingredients',       to: 'meal_ingredients#write',
                                     as: 'write_meal_ingredient'
 

@@ -342,10 +342,10 @@ RSpec.describe 'ingredients controller', type: :request do
         ingredient_ids = Ingredient.all.sample( 2 ).pluck( :id )
 
         params = {
-          ingredient_ids: ingredient_ids
+          
         }
 
-        get '/ingredients_filter', params: params
+        get '/meal_ingredients', params: params
 
         expect( response.status ).to eq( 200 )
       end

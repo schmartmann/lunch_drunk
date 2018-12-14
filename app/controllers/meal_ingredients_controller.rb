@@ -3,11 +3,34 @@ class MealIngredientsController < ApplicationController
     PERMITTED_ATTRIBUTES = [
       :uuid,
       :meal_id,
-      :ingredient_id
+      :ingredient_id,
+      :ingredient_ids
     ].freeze
 
     def query
-      
+      ingredient_ids = params[ :ingredient_ids ]
+      meal_ids = params[ :meal_ids ]
+
+      if ingredient_ids
+        @meals = []
+
+        MealIngredient.
+          where(
+            ingredient_id: ingredient_ids
+          ).each do | meal_ingredient |
+            @meals << meal_ingredient
+          end
+
+      elsif meal_ids
+        @ingredients = []
+
+        MealIngredient.
+          where(
+            ingredient_id: ingredient_ids
+          ).each do | meal_ingredient |
+            @meals << meal_ingredient
+          end
+      end
     end
 
     def write
