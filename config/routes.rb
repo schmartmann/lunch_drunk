@@ -10,10 +10,11 @@ Rails.application.routes.draw do
   post   '/meals',          to: 'meals#write',    as: 'write_meal'
   delete '/meals/:uuid',    to: 'meals#destroy',  as: 'destroy_meal'
 
-  get    '/ingredients',        to: 'ingredients#query',    as: 'ingredients'
-  get    '/ingredients/:uuid',  to: 'ingredients#read',     as: 'ingredient'
-  post   '/ingredients',        to: 'ingredients#write',    as: 'write_ingredient'
-  delete '/ingredients/:uuid',  to: 'ingredients#destroy',  as: 'destroy_ingredient'
+  get    '/ingredients',         to: 'ingredients#query',    as: 'ingredients'
+  get    '/ingredients/:uuid',   to: 'ingredients#read',     as: 'ingredient'
+  post   '/ingredients',         to: 'ingredients#write',    as: 'write_ingredient'
+  delete '/ingredients/:uuid',   to: 'ingredients#destroy',  as: 'destroy_ingredient'
+  get    '/ingredients/filter',  to: 'ingredients#filter',   as: 'filter_ingredient'
 
   post   '/meal_ingredients',       to: 'meal_ingredients#write',
                                     as: 'write_meal_ingredient'

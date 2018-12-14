@@ -335,4 +335,20 @@ RSpec.describe 'ingredients controller', type: :request do
       end
     end
   end
+
+  context '#filter' do
+    context 'when uuids are valid' do
+      it 'returns list of associated meals' do
+        ingredient_ids = Ingredient.all.sample( 2 ).pluck( :id )
+
+        params = {
+          ingredient_ids: ingredient_ids
+        }
+
+        get '/ingredients/filter', params: params
+
+        expect( response.status ).to eq( 200 )
+      end
+    end
+  end
 end
