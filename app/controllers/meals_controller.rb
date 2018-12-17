@@ -3,7 +3,6 @@ class MealsController < ApplicationController
 
   PERMITTED_ATTRIBUTES = [
     :name,
-    :time_period_uuid,
     :uuid
   ].freeze
 
@@ -123,7 +122,7 @@ class MealsController < ApplicationController
   end
 
   private; def require_time_period
-    unless params[ :time_period_uuid ]
+    unless params[ :time_period_uuid ] && time_period
       render json: {
         error: 'Missing required parameter: time_period_uuid'
       },
