@@ -7,6 +7,58 @@ RSpec.describe 'meal_ingredient controller', type: :request do
     @ingredient  = FactoryBot.create( :ingredient )
   end
 
+  describe '#query' do
+    context 'with valid ingredient attributes' do
+      it 'returns associated meals' do
+        @meal_ingredient = FactoryBot.create(
+          :meal_ingredient,
+          meal: @meal,
+          ingredient: @ingredient
+        )
+
+        params = {
+          meal_ingredient: {
+            ingredient_ids: [
+              @ingredient.id
+            ]
+          }
+        }
+
+        get '/meal_ingredients', params: params
+
+        meals = JSON.parse( response.body )[ 'meals' ]
+        meal = meals.first
+        expect( response.status ).to eq( 200 )
+        expect( meal[ 'uuid' ] ).to eq( @meal.uuid )
+      end
+    end
+
+    context 'with valid meal attributes' do
+      it 'returns associated ingredients' do
+        @meal_ingredient = FactoryBot.create(
+          :meal_ingredient,
+          meal: @meal,
+          ingredient: @ingredient
+        )
+
+        params = {
+          meals: [
+            {
+              meal_id: @meal.id
+            }
+          ]
+        }
+
+        get '/meal_ingredients', params: params
+
+        ingredients = JSON.parse( response.body )[ 'ingredients' ]
+        ingredient = ingredients.first
+        expect( response.status ).to eq( 200 )
+        expect( ingredient[ 'uuid' ] ).to eq( @ingredient.uuid )
+      end
+    end
+  end
+
   describe '#write' do
     context 'with valid attributes' do
       it 'returns resource' do

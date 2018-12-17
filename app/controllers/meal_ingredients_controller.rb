@@ -8,29 +8,12 @@ class MealIngredientsController < ApplicationController
     ].freeze
 
     def query
-      ingredient_ids = params[ :ingredient_ids ]
-      meal_ids = params[ :meal_ids ]
-
-      if ingredient_ids
-        @meals = []
-
-        MealIngredient.
-          where(
-            ingredient_id: ingredient_ids
-          ).each do | meal_ingredient |
-            @meals << meal_ingredient
-          end
-
-      elsif meal_ids
-        @ingredients = []
-
-        MealIngredient.
-          where(
-            ingredient_id: ingredient_ids
-          ).each do | meal_ingredient |
-            @meals << meal_ingredient
-          end
-      end
+      # how should this work?
+      # you select a list of ingredients
+      # the API returns a list of meals you can make with those ingredients 
+      binding.pry
+      ids = params[ :meal_ingredient ][ :ingredient_ids ]
+      meals
     end
 
     def write
