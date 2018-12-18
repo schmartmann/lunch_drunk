@@ -1,13 +1,27 @@
 class MealIngredientsController < ApplicationController
-
     PERMITTED_ATTRIBUTES = [
       :uuid,
       :meal_id,
-      :ingredient_id
+      :ingredient_id,
+      :ingredient_ids
     ].freeze
 
     def query
-      
+      query_helper
+    end
+
+    def filter_ingredients
+      meals = []
+      ingredient_ids = params[ :meal_ingredient ][ :ingredient_ids ]
+
+      if ingredient_ids
+        meal_ingredients = MealIngredient.where( ingredient_id: ingredient_ids )
+        meal_ingredients.each { | meal_ingredient | meals.push ( meal_ingredient.meal ) }
+      end
+
+      render json: {
+        meals: meals
+      }
     end
 
     def write

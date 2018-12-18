@@ -7,6 +7,64 @@ RSpec.describe 'meal_ingredient controller', type: :request do
     @ingredient  = FactoryBot.create( :ingredient )
   end
 
+  describe '#filter_ingredients' do
+    context 'with valid ingredient ids' do
+      it 'returns meal resources' do
+        ingredient_ids = []
+        meal_ids       = []
+
+        5.times do
+          time_period     = FactoryBot.create( :time_period )
+          ingredient      = FactoryBot.create( :ingredient )
+          meal            = FactoryBot.create( :meal, time_period: time_period )
+          meal_ingredient = FactoryBot.create( :meal_ingredient,
+                                                meal: meal,
+                                                ingredient: ingredient
+                                              )
+          meal_ids.push( meal.id )
+          ingredient_ids.push( ingredient.id )
+        end
+
+        params = {
+          meal_ingredient: {
+            ingredient_ids: ingredient_ids
+          }
+        }
+
+        get '/meal_ingredients/filter_ingredients', params: params
+
+        meals = JSON.parse( response.body )[ 'meals' ]
+        returned_meal_ids = meals.pluck( 'id' )
+
+        expect( response.status ).to eq( 200 )
+        expect( returned_meal_ids ).to eq( meal_ids )
+      end
+    end
+
+    context 'with invalid ingredient ids' do
+      it 'returns an empty array' do
+        ingredient_ids = []
+
+        5.times do
+          ingredient_ids.push( 'asdf' )
+        end
+
+        params = {
+          meal_ingredient: {
+            ingredient_ids: ingredient_ids
+          }
+        }
+
+        get '/meal_ingredients/filter_ingredients', params: params
+
+        meals = JSON.parse( response.body )[ 'meals' ]
+
+        expect( response.status ).to eq( 200 )
+        expect( meals ).to eq( [] )
+      end
+    end
+  end
+
   describe '#write' do
     context 'with valid attributes' do
       it 'returns resource' do
