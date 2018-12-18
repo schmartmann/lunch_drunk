@@ -7,7 +7,7 @@ class MealIngredientsController < ApplicationController
     ].freeze
 
     def query
-      
+      query_helper
     end
 
     def write
