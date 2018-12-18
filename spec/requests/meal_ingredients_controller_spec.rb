@@ -8,7 +8,7 @@ RSpec.describe 'meal_ingredient controller', type: :request do
   end
 
   describe '#query' do
-    context 'with valid ingredient attributes' do
+    context 'with one valid ingredient attribute' do
       it 'returns associated meals' do
         @meal_ingredient = FactoryBot.create(
           :meal_ingredient,
@@ -55,6 +55,36 @@ RSpec.describe 'meal_ingredient controller', type: :request do
         ingredient = ingredients.first
         expect( response.status ).to eq( 200 )
         expect( ingredient[ 'uuid' ] ).to eq( @ingredient.uuid )
+      end
+    end
+
+    context 'with multiple valid attributes' do
+      it 'returns associated meals' do
+        ingredient_ids = []
+
+        5.times do
+          time_period = FactoryBot.create( :time_period )
+          meal        = FactoryBot.create( :meal, time_period: time_period )
+          ingredient  = FactoryBot.create( :ingredient )
+
+          FactoryBot.create(
+            :meal_ingredient,
+            meal: meal,
+            ingredient: ingredient
+          )
+
+          ingredient_ids.push( ingredient.id )
+        end
+
+        params = {
+          meal_ingredients: {
+            ingredient_ids: ingredient_ids
+          }
+        }
+
+        get '/meal_ingredients', params: params
+
+        binding.pry
       end
     end
   end
