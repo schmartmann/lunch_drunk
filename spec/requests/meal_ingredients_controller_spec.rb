@@ -46,7 +46,7 @@ RSpec.describe 'meal_ingredient controller', type: :request do
         ingredient_ids = []
 
         5.times do
-          ingredient_ids.push( SecureRandom.hex )
+          ingredient_ids.push( 'asdf' )
         end
 
         params = {
