@@ -1,5 +1,4 @@
 class MealIngredientsController < ApplicationController
-
     PERMITTED_ATTRIBUTES = [
       :uuid,
       :meal_id,
@@ -8,12 +7,21 @@ class MealIngredientsController < ApplicationController
     ].freeze
 
     def query
-      # how should this work?
-      # you select a list of ingredients
-      # the API returns a list of meals you can make with those ingredients 
-      binding.pry
-      ids = params[ :meal_ingredient ][ :ingredient_ids ]
-      meals
+      query_helper
+    end
+
+    def filter_ingredients
+      meals = []
+      ingredient_ids = params[ :meal_ingredient ][ :ingredient_ids ]
+
+      if ingredient_ids
+        meal_ingredients = MealIngredient.where( ingredient_id: ingredient_ids )
+        meal_ingredients.each { | meal_ingredient | meals.push ( meal_ingredient.meal ) }
+      end
+
+      render json: {
+        meals: meals
+      }
     end
 
     def write

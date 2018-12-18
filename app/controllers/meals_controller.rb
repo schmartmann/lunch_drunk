@@ -52,7 +52,7 @@ class MealsController < ApplicationController
     if meal.save
       respond_to do | format |
         format.html {
-          redirect_to meal_path( meal.uuid )
+          redirect_to meal_path( uuid: meal.uuid )
         }
         format.json {
           render json:

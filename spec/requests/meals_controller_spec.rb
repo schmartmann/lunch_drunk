@@ -115,11 +115,10 @@ RSpec.describe 'meal controller', type: :request do
         params = {
           meal: {
             name: name
-          },
-          time_period_uuid: @time_period.uuid
+          }
         }
 
-        post '/meals', params: params
+        post "/time_periods/#{ @time_period.uuid }/meals", params: params
 
         meal = Meal.where(
           name: name,
@@ -135,15 +134,14 @@ RSpec.describe 'meal controller', type: :request do
         params = {
           meal: {
             name: name
-          },
-          time_period_uuid: @time_period.uuid
+          }
         }
 
         headers = {
           'Accept': 'application/json'
         }
 
-        post '/meals', params: params, headers: headers
+        post "/time_periods/#{ @time_period.uuid }/meals", params: params, headers: headers
 
         returned_meal = JSON.parse( response.body )[ 'meals' ].first
 
@@ -164,11 +162,10 @@ RSpec.describe 'meal controller', type: :request do
         params = {
           meal: {
             name: name
-          },
-          time_period_uuid: @time_period.uuid
+          }
         }
 
-        post '/meals', params: params
+        post "/time_periods/#{ @time_period.uuid }/meals", params: params
 
         meal = Meal.where(
           name: name,
@@ -185,11 +182,10 @@ RSpec.describe 'meal controller', type: :request do
         params = {
           meal: {
             name: name
-          },
-          time_period_uuid: nil
+          }
         }
 
-        post '/meals', params: params
+        post "/time_periods/#{ 'blipblop' }/meals", params: params
 
         meal = Meal.where(
           name: name,
@@ -206,16 +202,14 @@ RSpec.describe 'meal controller', type: :request do
     context 'when resource is found' do
       it 'returns nil' do
         uuid = @meal.uuid
-        time_period_uuid = @time_period.uuid
 
         params = {
           meal: {
             uuid: uuid
-          },
-          time_period_uuid: time_period_uuid
+          }
         }
 
-        delete "/meals/#{ uuid }", params: params
+        delete "/time_periods/#{ @time_period.uuid }/meals/#{ uuid }", params: params
 
         meal = Meal.find_by( uuid: uuid )
 
@@ -232,11 +226,10 @@ RSpec.describe 'meal controller', type: :request do
           meal: {
             name: 'wolf cola',
             uuid: bad_uuid
-          },
-          time_period_uuid: @time_period_uuid
+          }
         }
 
-        delete "/meals/#{ bad_uuid }", params: params
+        delete "/time_periods/#{ @time_period.uuid }/meals/#{ bad_uuid }", params: params
 
         expect( response.status ).to eq( 404 )
         expect( response.message ).to eq( 'Not Found' )
@@ -248,15 +241,16 @@ RSpec.describe 'meal controller', type: :request do
     context 'without meal_uuid' do
       it 'returns valid JSON' do
         params = {
-          time_period_uuid: @time_period.uuid,
-          uuid: nil
+          uuid: SecureRandom.hex
         }
 
         headers = {
           'Accept': 'application/json'
         }
 
-        get '/meals_shuffle', params: params, headers: headers
+        get "/time_periods/#{ @time_period.uuid }/meals_shuffle",
+          params: params,
+          headers: headers
 
         body = JSON.parse( response.body )
         meal = body[ 'meals' ].first
@@ -277,11 +271,10 @@ RSpec.describe 'meal controller', type: :request do
         uuid = @meal.uuid
 
         params = {
-          time_period_uuid: @time_period.uuid,
           uuid: uuid
         }
 
-        get '/meals_shuffle', params: params
+        get "/time_periods/#{ @time_period.uuid }/meals_shuffle", params: params
 
         body = JSON.parse( response.body )
         meal = body[ 'meals' ].first

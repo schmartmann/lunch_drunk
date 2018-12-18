@@ -7,84 +7,60 @@ RSpec.describe 'meal_ingredient controller', type: :request do
     @ingredient  = FactoryBot.create( :ingredient )
   end
 
-  describe '#query' do
-    context 'with one valid ingredient attribute' do
-      it 'returns associated meals' do
-        @meal_ingredient = FactoryBot.create(
-          :meal_ingredient,
-          meal: @meal,
-          ingredient: @ingredient
-        )
-
-        params = {
-          meal_ingredient: {
-            ingredient_ids: [
-              @ingredient.id
-            ]
-          }
-        }
-
-        get '/meal_ingredients', params: params
-
-        meals = JSON.parse( response.body )[ 'meals' ]
-        meal = meals.first
-        expect( response.status ).to eq( 200 )
-        expect( meal[ 'uuid' ] ).to eq( @meal.uuid )
-      end
-    end
-
-    context 'with valid meal attributes' do
-      it 'returns associated ingredients' do
-        @meal_ingredient = FactoryBot.create(
-          :meal_ingredient,
-          meal: @meal,
-          ingredient: @ingredient
-        )
-
-        params = {
-          meals: [
-            {
-              meal_id: @meal.id
-            }
-          ]
-        }
-
-        get '/meal_ingredients', params: params
-
-        ingredients = JSON.parse( response.body )[ 'ingredients' ]
-        ingredient = ingredients.first
-        expect( response.status ).to eq( 200 )
-        expect( ingredient[ 'uuid' ] ).to eq( @ingredient.uuid )
-      end
-    end
-
-    context 'with multiple valid attributes' do
-      it 'returns associated meals' do
+  describe '#filter_ingredients' do
+    context 'with valid ingredient ids' do
+      it 'returns meal resources' do
         ingredient_ids = []
+        meal_ids       = []
 
         5.times do
-          time_period = FactoryBot.create( :time_period )
-          meal        = FactoryBot.create( :meal, time_period: time_period )
-          ingredient  = FactoryBot.create( :ingredient )
-
-          FactoryBot.create(
-            :meal_ingredient,
-            meal: meal,
-            ingredient: ingredient
-          )
-
+          time_period     = FactoryBot.create( :time_period )
+          ingredient      = FactoryBot.create( :ingredient )
+          meal            = FactoryBot.create( :meal, time_period: time_period )
+          meal_ingredient = FactoryBot.create( :meal_ingredient,
+                                                meal: meal,
+                                                ingredient: ingredient
+                                              )
+          meal_ids.push( meal.id )
           ingredient_ids.push( ingredient.id )
         end
 
         params = {
-          meal_ingredients: {
+          meal_ingredient: {
             ingredient_ids: ingredient_ids
           }
         }
 
-        get '/meal_ingredients', params: params
+        get '/meal_ingredients/filter_ingredients', params: params
 
-        binding.pry
+        meals = JSON.parse( response.body )[ 'meals' ]
+        returned_meal_ids = meals.pluck( 'id' )
+
+        expect( response.status ).to eq( 200 )
+        expect( returned_meal_ids ).to eq( meal_ids )
+      end
+    end
+
+    context 'with invalid ingredient ids' do
+      it 'returns an empty array' do
+        ingredient_ids = []
+
+        5.times do
+          ingredient_ids.push( SecureRandom.hex )
+        end
+
+        params = {
+          meal_ingredient: {
+            ingredient_ids: ingredient_ids
+          }
+        }
+
+        get '/meal_ingredients/filter_ingredients', params: params
+
+        meals = JSON.parse( response.body )[ 'meals' ]
+
+        expect( response.status ).to eq( 200 )
+        expect( meals ).to eq( [] )
       end
     end
   end
