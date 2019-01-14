@@ -27,7 +27,7 @@ class TimePeriodsController < ApplicationController
         status: :unprocessable_entity
       else
         render json: {
-          error: 'Error creating new record -- please see logs',
+          error: 'Error creating new record -- please see logs'
         },
         status: :unprocessable_entity
       end

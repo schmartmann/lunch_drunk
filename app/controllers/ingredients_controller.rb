@@ -7,56 +7,34 @@ class IngredientsController < ApplicationController
   ].freeze
 
   def query
-    query_helper
+    render json: Ingredient.all
   end
 
   def read
-    if existing_ingredient
-      respond_to do | format |
-        format.html
-        format.json {
-          render json: {
-            ingredients: [
-              existing_ingredient
-            ]
-          }
-        }
-      end
-    else
-      not_found_error( params )
-    end
+    render json: Ingredient.where( uuid: params[ :uuid ] )
   end
 
   def write
-    ingredient = Ingredient.new(
-      ingredient_params
-    )
+    unless existing_ingredient
+      ingredient = Ingredient.new(
+        ingredient_params
+      )
 
-    if ingredient.save
-      respond_to do | format |
-        format.html {
-          redirect_to ingredient_path( ingredient.uuid )
-        }
-        format.json {
-          render json:
-            {
-              ingredients: [
-                ingredient
-              ]
-            },
-            status: 200
-        }
+      if ingredient.save
+        render json: ingredient
+      elsif ingredient.errors.any?
+        render json: {
+          error: ingredient.errors.full_messages
+        },
+        status: :unprocessable_entity
+      else
+        render json: {
+          error: 'Error creating new record -- please see logs'
+        },
+        status: :unprocessable_entity
       end
-    elsif ingredient.errors.any?
-      render json: {
-        error: ingredient.errors.full_messages
-      },
-      status: :unprocessable_entity
     else
-      render json: {
-        error: 'Error creating new record -- please see logs',
-      },
-      status: :unprocessable_entity
+      render json: existing_ingredient
     end
   end
 
@@ -64,27 +42,16 @@ class IngredientsController < ApplicationController
     begin
       existing_ingredient.destroy
 
-      respond_to do | format |
-        format.html {
-          redirect_to ingredients_path
-        }
-        format.json {
-          render json: {
-            message: "#{ existing_ingredient.name } successfully destroyed"
-          }
-        }
-      end
+      render json: {
+        message: "#{ existing_ingredient.name } successfully destroyed"
+      }
     rescue
       not_found_error( params )
     end
   end
 
-  def existing_ingredients
-    @ingredients ||= query_helper
-  end
-
   def existing_ingredient
-    @ingredient ||= read_helper
+    @ingredient ||= Ingredient.where( ingredient_params ).first
   end
 
   private; def ingredient_params
