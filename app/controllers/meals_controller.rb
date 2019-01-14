@@ -86,6 +86,7 @@ class MealsController < ApplicationController
 
   private; def require_time_period
     unless time_period
+
       render json: {
         error: 'Missing required parameter: time_period_uuid'
       },

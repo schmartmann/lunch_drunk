@@ -22,7 +22,6 @@ RSpec.describe 'meal controller', type: :request do
     context 'without valid time_period_uuid' do
       it 'returns 404' do
         get "/time_periods/#{ SecureRandom.hex}/meals"
-
         expect( response.status ).to eq( 404 )
         expect( response.message ).to eq( 'Not Found' )
       end
@@ -49,6 +48,7 @@ RSpec.describe 'meal controller', type: :request do
         bad_uuid = SecureRandom.hex
 
         get "/time_periods/#{ @time_period.uuid }/meals/#{ bad_uuid }"
+
 
         meals = JSON.parse( response.body )
 
@@ -113,7 +113,6 @@ RSpec.describe 'meal controller', type: :request do
     context 'when resource is found' do
       it 'returns nil' do
         uuid = @meal.uuid
-        time_period_uuid = @time_period.uuid
 
         params = {
           meal: {
@@ -156,7 +155,9 @@ RSpec.describe 'meal controller', type: :request do
         meals = JSON.parse( response.body )
 
         expect( response.status ).to eq( 200 )
-        expect( meals.any? ).to be( true )
+        expect( meal.present? ).to be( true )
+        expect( ingredients.any? ).to be( true )
+        expect( expected_ingredient_uuids ).to eq( expected_ingredient_uuids )
       end
     end
 
@@ -168,8 +169,11 @@ RSpec.describe 'meal controller', type: :request do
 
         meal = JSON.parse( response.body ).first
 
+
         expect( response.status ).to eq( 200 )
         expect( meal[ 'uuid' ] ).to_not eq( uuid )
+        expect( ingredients.any? ).to be( true )
+        expect( expected_ingredient_uuids ).to eq( response_ingredients_uuids )
       end
     end
   end
