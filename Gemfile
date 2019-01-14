@@ -14,6 +14,8 @@ gem 'factory_bot_rails'
 
 gem 'active_model_serializers'
 
+gem 'rack-cors', :require => 'rack/cors'
+
 gem 'pg'
 # Use Puma as the app server
 gem 'puma', '~> 3.7'

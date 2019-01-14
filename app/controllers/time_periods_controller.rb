@@ -5,56 +5,34 @@ class TimePeriodsController < ApplicationController
   ].freeze
 
   def query
-    query_helper
+    time_periods = TimePeriod.all
+    render json: time_periods
   end
 
   def read
-    if existing_time_period
-      respond_to do | format |
-        format.html
-        format.json {
-          render json: {
-            time_period: [
-              existing_time_period
-            ]
-          }
-        }
-      end
-    else
-      not_found_error( params )
-    end
+    time_period = TimePeriod.where( uuid: params[ :uuid ] )
+    render json: time_period
   end
 
   def write
-    time_period = TimePeriod.new(
-      time_period_params
-    )
+    unless existing_time_period
+      time_period = TimePeriod.new( time_period_params )
 
-    if time_period.save
-      respond_to do | format |
-        format.html {
-          redirect_to time_period_path( time_period.uuid )
-        }
-        format.json {
-          render json:
-            {
-              time_periods: [
-                time_period
-              ]
-            },
-            status: 200
-        }
+      if time_period.save
+        render json: time_period
+      elsif time_period.errors.any?
+        render json: {
+          error: time_period.errors.full_messages
+        },
+        status: :unprocessable_entity
+      else
+        render json: {
+          error: 'Error creating new record -- please see logs'
+        },
+        status: :unprocessable_entity
       end
-    elsif time_period.errors.any?
-      render json: {
-        error: time_period.errors.full_messages
-      },
-      status: :unprocessable_entity
     else
-      render json: {
-        error: 'Error creating new record -- please see logs',
-      },
-      status: :unprocessable_entity
+      render json: existing_time_period
     end
   end
 
@@ -62,16 +40,9 @@ class TimePeriodsController < ApplicationController
     begin
       existing_time_period.destroy
 
-      respond_to do | format |
-        format.html {
-          redirect_to time_periods_path
-        }
-        format.json {
-          render json: {
-            message: "#{ existing_time_period.name } successfully destroyed"
-          }
-        }
-      end
+      render json: {
+        message: "#{ existing_time_period.name } successfully destroyed"
+      }
     rescue
       not_found_error( params )
     end

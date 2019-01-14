@@ -7,73 +7,44 @@ class MealsController < ApplicationController
   ].freeze
 
   def query
-    query_helper
+    render json: meals
+  end
+
+  def read
+    render json: time_period.meals.where( uuid: params[ :uuid ] )
   end
 
   def shuffle
     if params[ :uuid ]
-      @meal = time_period.meals.where.not( uuid: params[ :uuid ] ).sample
+      meals = time_period.meals.where.not( uuid: params[ :uuid ] ).sample
     else
-      @meal = time_period.meals.sample
+      meals = time_period.meals.sample
     end
 
-    @ingredients = @meal.ingredients
-
-    render json: {
-      meals: [ @meal ],
-      ingredients: @ingredients
-    }
-  end
-
-  def read
-    if existing_meal
-
-      respond_to do | format |
-        format.html
-        format.json {
-          render json:
-           {
-             meals: [
-               existing_meal
-             ]
-           }
-        }
-      end
-    else
-      not_found_error( params )
-    end
+    render json: [ meals ]
   end
 
   def write
-    meal = time_period.meals.new(
-      meal_params
-    )
+    unless existing_meal
+      meal = time_period.meals.new(
+        meal_params
+      )
 
-    if meal.save
-      respond_to do | format |
-        format.html {
-          redirect_to meal_path( uuid: meal.uuid )
-        }
-        format.json {
-          render json:
-            {
-              meals: [
-                meal
-              ]
-            },
-            status: 200
-        }
+      if meal.save
+        render json: [ meal ]
+      elsif meal.errors.any?
+        render json: {
+          error: meal.errors.full_messages
+        },
+        status: :unprocessable_entity
+      else
+        render json: {
+          error: 'Error creating new record -- please see logs',
+        },
+        status: :unprocessable_entity
       end
-    elsif meal.errors.any?
-      render json: {
-        error: meal.errors.full_messages
-      },
-      status: :unprocessable_entity
     else
-      render json: {
-        error: 'Error creating new record -- please see logs',
-      },
-      status: :unprocessable_entity
+      render json: [ existing_meal ]
     end
   end
 
@@ -81,16 +52,9 @@ class MealsController < ApplicationController
     begin
       existing_meal.destroy
 
-      respond_to do | format |
-        format.html {
-          redirect_to meals_path
-        }
-        format.json {
-          render json: {
-            message: "#{ existing_meal.name } successfully destroyed"
-          }
-        }
-      end
+      render json: {
+        message: "#{ existing_meal.name } successfully destroyed"
+      }
     rescue
       not_found_error( params )
     end
@@ -111,7 +75,6 @@ class MealsController < ApplicationController
     @meal ||=
       time_period
         .meals
-        .joins( :ingredients )
         .where(
           uuid: params[ :uuid ]
         ).first
@@ -122,7 +85,8 @@ class MealsController < ApplicationController
   end
 
   private; def require_time_period
-    unless params[ :time_period_uuid ] && time_period
+    unless time_period
+
       render json: {
         error: 'Missing required parameter: time_period_uuid'
       },

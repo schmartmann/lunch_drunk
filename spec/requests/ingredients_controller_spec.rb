@@ -6,18 +6,6 @@ RSpec.describe 'ingredients controller', type: :request do
   end
 
   context '#query' do
-    it 'renders template' do
-      get '/ingredients'
-
-      expect( response ).to render_template( :query )
-    end
-
-    it 'doesn\'t render different template' do
-      get '/ingredients'
-
-      expect( response ).to_not render_template( :read )
-    end
-
     it 'renders JSON' do
       headers = {
         'Accept': 'application/json'
@@ -25,57 +13,25 @@ RSpec.describe 'ingredients controller', type: :request do
 
       get '/ingredients', headers: headers
 
-      expect( JSON.parse( response.body )[ 'ingredients' ].any? ).to be( true )
+      expect( JSON.parse( response.body ).any? ).to be( true )
       expect( response.content_type ).to eq( 'application/json' )
     end
   end
 
   context '#read' do
     context 'with valid attributes' do
-      it 'renders template' do
-        uuid = @ingredient.uuid
-
-        params = {
-          ingredient: {
-            uuid: uuid
-          }
-        }
-
-        get "/ingredients/#{ uuid }", params: params
-
-        expect( response ).to render_template( :read )
-      end
-
-      it 'doesn\'t render different template' do
-        uuid = @ingredient.uuid
-
-        params = {
-          ingredient: {
-            uuid: uuid
-          }
-        }
-
-        get "/ingredients/#{ uuid }", params: params
-
-        expect( response ).to_not render_template( :query )
-      end
-
       it 'renders JSON' do
         uuid = @ingredient.uuid
 
-        headers = {
-          'Accept': 'application/json'
-        }
-
         params = {
           ingredient: {
             uuid: uuid
           }
         }
 
-        get "/ingredients/#{ uuid }", params: params, headers: headers
+        get "/ingredients/#{ uuid }", params: params
 
-        returned_uuid = JSON.parse( response.body )[ 'ingredients' ].first[ 'uuid' ]
+        returned_uuid = JSON.parse( response.body ).first[ 'uuid' ]
 
         expect( response.content_type ).to eq( 'application/json' )
         expect( response.status ).to eq( 200 )
@@ -84,32 +40,22 @@ RSpec.describe 'ingredients controller', type: :request do
     end
 
     context 'without valid uuid' do
-      it 'doesn\'t render template' do
-        bad_uuid = SecureRandom.hex
+      it 'returns empty array' do
+        get "/ingredients/#{ SecureRandom.hex }"
 
-        get "/ingredients/#{ bad_uuid }"
+        body = JSON.parse( response.body )
 
-        expect( response ).to_not render_template( :read )
-      end
-
-      it 'returns 404' do
-        bad_uuid = SecureRandom.hex
-
-        get "/ingredients/#{ bad_uuid }"
-
-        expect( response.status ).to eq( 404 )
+        expect( body ).to eq( [] )
       end
     end
   end
 
   context '#write' do
     context 'with valid attributes' do
-      it 'creates new ingredient' do
-        name = "#{ Faker::Name.last_name}-#{ SecureRandom.hex }"
-
+      it 'returns new ingredient as JSON' do
         params = {
           ingredient: {
-            name: name,
+            name: "#{ Faker::Name.last_name}-#{ SecureRandom.hex }",
             unit: 'fl_oz',
             quantity: 12
           }
@@ -117,32 +63,7 @@ RSpec.describe 'ingredients controller', type: :request do
 
         post '/ingredients', params: params
 
-        ingredient = Ingredient.where(
-          name: name
-        ).first
-
-        expect( ingredient ).to_not be( nil )
-        expect( response.status ).to eq 302
-      end
-
-      it 'returns new ingredient as JSON' do
-        name = "#{ Faker::Name.last_name}-#{ SecureRandom.hex }"
-
-        params = {
-          ingredient: {
-            name: name,
-            unit: 'fl_oz',
-            quantity: 12
-          }
-        }
-
-        headers = {
-          'Accept': 'application/json'
-        }
-
-        post '/ingredients', params: params, headers: headers
-
-        returned_ingredient = JSON.parse( response.body )[ 'ingredients' ].first
+        returned_ingredient = JSON.parse( response.body )
 
         uuid = Ingredient.where(
           uuid: returned_ingredient[ 'uuid' ]
@@ -270,13 +191,15 @@ RSpec.describe 'ingredients controller', type: :request do
         expect( response.status ).to eq 422
       end
 
-      it 'disallows duplicates' do
+      it 'returns existing record instead of creating dupe' do
         @ingredient = FactoryBot.create(
           :ingredient,
           name: 'wolf cola',
           quantity: 12,
           unit: 'fl_oz'
         )
+
+        existing_uuid = @ingredient.uuid
 
         params = {
           ingredient: {
@@ -290,9 +213,10 @@ RSpec.describe 'ingredients controller', type: :request do
 
         body = JSON.parse( response.body )
 
-        expect( body[ 'error' ].any? ).to be( true )
-        expect( body[ 'error' ].first ).to eq( 'Name has already been taken' )
-        expect( response.status ).to eq 422
+        expect( body[ 'uuid' ] ).to eq( @ingredient.uuid )
+        expect( body[ 'name' ] ).to eq( @ingredient.name )
+        expect( body[ 'quantity' ] ).to eq( @ingredient.quantity )
+        expect( body[ 'unit' ] ).to eq( @ingredient.unit )
       end
     end
   end
@@ -301,6 +225,7 @@ RSpec.describe 'ingredients controller', type: :request do
     context 'when resource is found' do
       it 'returns nil' do
         uuid = @ingredient.uuid
+        ingredient_name = @ingredient.name
 
         params = {
           ingredient: {
@@ -310,10 +235,12 @@ RSpec.describe 'ingredients controller', type: :request do
 
         delete "/ingredients/#{ uuid }", params: params
 
+        message = JSON.parse( response.body )[ 'message' ]
+
         ingredient = Ingredient.find_by( uuid: uuid )
 
         expect( ingredient ).to be( nil )
-        expect( response ).to redirect_to( ingredients_path )
+        expect( message ).to eq( "#{ ingredient_name } successfully destroyed" )
       end
     end
 

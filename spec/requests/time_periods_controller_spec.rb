@@ -7,18 +7,6 @@ RSpec.describe 'time_period controller', type: :request do
   end
 
   context '#query' do
-    it 'renders template' do
-      get '/time_periods'
-
-      expect( response ).to render_template( :query )
-    end
-
-    it 'doesn\'t render different template' do
-      get '/time_periods'
-
-      expect( response ).to_not render_template( :read )
-    end
-
     it 'renders JSON' do
       headers = {
         'Accept': 'application/json'
@@ -32,22 +20,6 @@ RSpec.describe 'time_period controller', type: :request do
 
   context '#read' do
     context 'with valid uuid' do
-      it 'renders template' do
-        uuid = @time_period.uuid
-
-        get "/time_periods/#{ uuid }"
-
-        expect( response ).to render_template( :read )
-      end
-
-      it 'doesn\'t render different template' do
-        uuid = @time_period.uuid
-
-        get "/time_periods/#{ uuid }"
-
-        expect( response ).to_not render_template( :index )
-      end
-
       it 'renders JSON' do
         uuid = @time_period.uuid
 
@@ -62,10 +34,12 @@ RSpec.describe 'time_period controller', type: :request do
     end
 
     context 'without valid uuid' do
-      it 'returns 404' do
+      it 'returns empty array' do
         get "/time_periods/#{ SecureRandom.hex }"
 
-        expect( response.status ).to eq( 404 )
+        time_periods = JSON.parse( response.body )
+
+        expect( time_periods ).to eq( [] )
       end
     end
   end
@@ -73,19 +47,12 @@ RSpec.describe 'time_period controller', type: :request do
   context '#write' do
     it 'successfully writes new time_period' do
       name = "#{ Faker::Name.last_name}-#{ SecureRandom.hex }"
-      post write_time_period_path, params: { time_period: { name: name } }
-
-      expect( response.status ).to eq 302
-    end
-
-    it 'successfully writes new time_period' do
-      name = "#{ Faker::Name.last_name}-#{ SecureRandom.hex }"
 
       post '/time_periods', params: { time_period: { name: name } }, headers: {
         'Accept': 'application/json'
       }
 
-      returned_name = JSON.parse( response.body )[ 'time_periods' ].first[ 'name' ]
+      returned_name = JSON.parse( response.body )[ 'name' ]
 
       expect( response.status ).to eq 200
       expect( returned_name ).to eq( name )
@@ -112,10 +79,14 @@ RSpec.describe 'time_period controller', type: :request do
 
         delete "/time_periods/#{ uuid }", params: { time_period: { name: name, uuid: uuid } }
 
+        expected_message = "#{ name } successfully destroyed"
+
+        returned_message = JSON.parse( response.body )[ 'message' ]
+
         time_period = TimePeriod.find_by( uuid: uuid )
 
         expect( time_period ).to be( nil )
-        expect( response ).to redirect_to( time_periods_path )
+        expect( returned_message ).to eq( expected_message )
       end
 
       it 'destroys dependent resources' do

@@ -9,35 +9,19 @@ RSpec.describe 'meal controller', type: :request do
 
   context '#query' do
     context 'with valid time_period_uuid' do
-      it 'renders template' do
-        get "/time_periods/#{ @time_period.uuid }/meals"
-
-        expect( response ).to render_template( :query )
-      end
-
-      it 'doesn\'t render different template' do
-        get "/time_periods/#{ @time_period.uuid }/meals"
-
-        expect( response ).to_not render_template( :read )
-      end
-
       it 'renders JSON' do
-        headers = {
-          'Accept': 'application/json'
-        }
+        get "/time_periods/#{ @time_period.uuid }/meals"
 
-        get "/time_periods/#{ @time_period.uuid }/meals",
-          headers: headers
+        meals = JSON.parse( response.body )
 
-        expect( JSON.parse( response.body )[ "meals" ].any? ).to be( true )
+        expect( meals.any? ).to be( true )
         expect( response.content_type ).to eq( 'application/json' )
       end
     end
 
     context 'without valid time_period_uuid' do
       it 'returns 404' do
-        get "/time_periods/#{ @time_period.uuid }/meals/#{ SecureRandom.hex }"
-
+        get "/time_periods/#{ SecureRandom.hex}/meals"
         expect( response.status ).to eq( 404 )
         expect( response.message ).to eq( 'Not Found' )
       end
@@ -46,32 +30,12 @@ RSpec.describe 'meal controller', type: :request do
 
   context '#read' do
     context 'with valid attributes' do
-      it 'renders template' do
-        uuid = @meal.uuid
-
-        get "/time_periods/#{ @time_period.uuid }/meals/#{ uuid }"
-
-        expect( response ).to render_template( :read )
-      end
-
-      it 'doesn\'t render different template' do
-        uuid = @meal.uuid
-
-        get "/time_periods/#{ @time_period.uuid }/meals/#{ uuid }"
-
-        expect( response ).to_not render_template( :query )
-      end
-
       it 'renders JSON' do
         uuid = @meal.uuid
 
-        headers = {
-          'Accept': 'application/json'
-        }
+        get "/time_periods/#{ @time_period.uuid }/meals/#{ uuid }"
 
-        get "/time_periods/#{ @time_period.uuid }/meals/#{ uuid }", headers: headers
-
-        returned_uuid = JSON.parse( response.body )[ 'meals' ].first[ 'uuid' ]
+        returned_uuid = JSON.parse( response.body ).first[ 'uuid' ]
 
         expect( response.content_type ).to eq( 'application/json' )
         expect( response.status ).to eq( 200 )
@@ -79,71 +43,32 @@ RSpec.describe 'meal controller', type: :request do
       end
     end
 
-    context 'without valid time_period_uuid' do
-      it 'doesn\'t render template' do
-        get "/time_periods/#{ SecureRandom.hex }/meals/#{ @meal.uuid }"
-
-        expect( response ).to_not render_template( :read )
-      end
-
-      it 'returns 404' do
-        get "/time_periods/#{ SecureRandom.hex }/meals/#{ @meal.uuid }"
-
-        expect( response.status ).to eq( 404 )
-      end
-    end
-
     context 'without valid uuid' do
-      it 'doesn\'t render template' do
-        get "/time_periods/#{ @time_period.uuid }/meals/#{ SecureRandom.hex }"
+      it 'returns empty array' do
+        bad_uuid = SecureRandom.hex
 
-        expect( response ).to_not render_template( :read )
-      end
+        get "/time_periods/#{ @time_period.uuid }/meals/#{ bad_uuid }"
 
-      it 'returns 404' do
-        get "/time_periods/#{ @time_period.uuid }/meals/#{ SecureRandom.hex }"
 
-        expect( response.status ).to eq( 404 )
+        meals = JSON.parse( response.body )
+
+        expect( meals ).to eq( [] )
       end
     end
   end
 
   context '#write' do
     context 'with valid attributes' do
-      it 'creates new meal' do
-        name = "#{ Faker::Name.last_name}-#{ SecureRandom.hex }"
+      it 'returns new meal as JSON' do
         params = {
           meal: {
-            name: name
+            name: "#{ Faker::Name.last_name}-#{ SecureRandom.hex }"
           }
         }
 
         post "/time_periods/#{ @time_period.uuid }/meals", params: params
 
-        meal = Meal.where(
-          name: name,
-          time_period_id: @time_period.id
-        ).first
-
-        expect( meal ).to_not be( nil )
-        expect( response.status ).to eq 302
-      end
-
-      it 'returns new meal as JSON' do
-        name = "#{ Faker::Name.last_name}-#{ SecureRandom.hex }"
-        params = {
-          meal: {
-            name: name
-          }
-        }
-
-        headers = {
-          'Accept': 'application/json'
-        }
-
-        post "/time_periods/#{ @time_period.uuid }/meals", params: params, headers: headers
-
-        returned_meal = JSON.parse( response.body )[ 'meals' ].first
+        returned_meal = JSON.parse( response.body ).first
 
         uuid = Meal.where(
           uuid: returned_meal[ 'uuid' ]
@@ -157,42 +82,28 @@ RSpec.describe 'meal controller', type: :request do
 
     context 'without valid attributes' do
       it 'fails without meal.name' do
-        name = nil
-
         params = {
           meal: {
-            name: name
+            name: nil
           }
         }
 
         post "/time_periods/#{ @time_period.uuid }/meals", params: params
 
-        meal = Meal.where(
-          name: name,
-          time_period_id: @time_period.id
-        ).first
+        message = JSON.parse( response.body )[ 'error' ].first
 
-        expect( meal ).to be( nil )
-        expect( response.status ).to eq 422
+        expect( message ).to eq( 'Name can\'t be blank' )
       end
 
-      it 'fails without time_period' do
-        name = "#{ Faker::Name.last_name}-#{ SecureRandom.hex }"
-
+      it 'fails without valid time_period' do
         params = {
           meal: {
-            name: name
+            name: "#{ Faker::Name.last_name}-#{ SecureRandom.hex }"
           }
         }
 
-        post "/time_periods/#{ 'blipblop' }/meals", params: params
+        post "/time_periods/#{ SecureRandom.hex }/meals", params: params
 
-        meal = Meal.where(
-          name: name,
-          time_period_id: @time_period.id
-        ).first
-
-        expect( meal ).to be( nil )
         expect( response.status ).to eq 404
       end
     end
@@ -209,12 +120,11 @@ RSpec.describe 'meal controller', type: :request do
           }
         }
 
-        delete "/time_periods/#{ @time_period.uuid }/meals/#{ uuid }", params: params
+        delete "/time_periods/#{ time_period_uuid }/meals/#{ uuid }", params: params
 
         meal = Meal.find_by( uuid: uuid )
 
         expect( meal ).to be( nil )
-        expect( response ).to redirect_to( meals_path )
       end
     end
 
@@ -240,24 +150,9 @@ RSpec.describe 'meal controller', type: :request do
   context '#shuffle' do
     context 'without meal_uuid' do
       it 'returns valid JSON' do
-        params = {
-          uuid: SecureRandom.hex
-        }
+        get "/time_periods/#{ @time_period.uuid }/meals/shuffle"
 
-        headers = {
-          'Accept': 'application/json'
-        }
-
-        get "/time_periods/#{ @time_period.uuid }/meals_shuffle",
-          params: params,
-          headers: headers
-
-        body = JSON.parse( response.body )
-        meal = body[ 'meals' ].first
-        ingredients = body[ 'ingredients' ]
-
-        expected_ingredient_uuids = Meal.find_by( uuid: meal[ 'uuid' ] ).ingredients.pluck( :id )
-        response_ingredients_uuids = ingredients.pluck( 'id' )
+        meals = JSON.parse( response.body )
 
         expect( response.status ).to eq( 200 )
         expect( meal.present? ).to be( true )
@@ -270,18 +165,10 @@ RSpec.describe 'meal controller', type: :request do
       it 'doesn\'t return the same record twice' do
         uuid = @meal.uuid
 
-        params = {
-          uuid: uuid
-        }
+        get "/time_periods/#{ @time_period.uuid }/meals/shuffle?uuid=#{ uuid }"
 
-        get "/time_periods/#{ @time_period.uuid }/meals_shuffle", params: params
+        meal = JSON.parse( response.body ).first
 
-        body = JSON.parse( response.body )
-        meal = body[ 'meals' ].first
-        ingredients = body[ 'ingredients' ]
-
-        expected_ingredient_uuids = Meal.find_by( uuid: meal[ 'uuid' ] ).ingredients.pluck( :id )
-        response_ingredients_uuids = ingredients.pluck( 'id' )
 
         expect( response.status ).to eq( 200 )
         expect( meal[ 'uuid' ] ).to_not eq( uuid )
