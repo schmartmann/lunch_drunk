@@ -10,8 +10,6 @@ gem 'rails', '~> 5.1.5'
 
 gem 'rspec', '~> 3.0'
 
-gem 'factory_bot_rails'
-
 gem 'active_model_serializers'
 
 gem 'rack-cors', :require => 'rack/cors'
@@ -45,6 +43,7 @@ group :development, :test do
   gem 'pry-nav'
   gem 'rails-controller-testing'
   gem 'faker'
+  gem 'factory_bot_rails'
   # Adds support for Capybara system testing and selenium driver
   gem 'capybara', '~> 2.13'
   gem 'selenium-webdriver'
