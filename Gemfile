@@ -18,7 +18,7 @@ gem 'active_model_serializers'
 
 gem 'rack-cors', :require => 'rack/cors'
 
-gem 'pg'
+gem 'pg', '0.15.1'
 # Use Puma as the app server
 gem 'puma', '~> 3.7'
 # Use SCSS for stylesheets
@@ -68,7 +68,6 @@ group :development do
 end
 
 group :development, :production do
-  gem 'pg', '0.15.1'
   gem 'rails_12factor'
 end
 
