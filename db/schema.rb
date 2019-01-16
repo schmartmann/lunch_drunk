@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190116152514) do
+ActiveRecord::Schema.define(version: 20190116161416) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -21,6 +21,7 @@ ActiveRecord::Schema.define(version: 20190116152514) do
     t.integer "quantity"
     t.string "uuid"
     t.boolean "optional", default: false
+    t.string "emoji"
   end
 
   create_table "meal_ingredients", force: :cascade do |t|
@@ -35,12 +36,14 @@ ActiveRecord::Schema.define(version: 20190116152514) do
     t.string "name"
     t.bigint "time_period_id"
     t.string "uuid"
+    t.string "emoji"
     t.index ["time_period_id"], name: "index_meals_on_time_period_id"
   end
 
   create_table "time_periods", force: :cascade do |t|
     t.string "name"
     t.string "uuid"
+    t.string "emoji"
   end
 
 end
