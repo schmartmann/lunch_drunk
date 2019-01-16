@@ -67,7 +67,7 @@ group :development do
   gem 'spring-watcher-listen', '~> 2.0.0'
 end
 
-group :development, :product do
+group :development, :production do
   gem 'pg'
 end
 
