@@ -120,7 +120,7 @@ RSpec.describe 'meal controller', type: :request do
           }
         }
 
-        delete "/time_periods/#{ time_period_uuid }/meals/#{ uuid }", params: params
+        delete "/time_periods/#{ @time_period.uuid }/meals/#{ uuid }", params: params
 
         meal = Meal.find_by( uuid: uuid )
 
@@ -152,12 +152,11 @@ RSpec.describe 'meal controller', type: :request do
       it 'returns valid JSON' do
         get "/time_periods/#{ @time_period.uuid }/meals/shuffle"
 
-        meals = JSON.parse( response.body )
+        meals = JSON.parse( response.body ).first
 
         expect( response.status ).to eq( 200 )
-        expect( meal.present? ).to be( true )
-        expect( ingredients.any? ).to be( true )
-        expect( expected_ingredient_uuids ).to eq( expected_ingredient_uuids )
+        expect( meals.present? ).to be( true )
+        expect( meals[ 'ingredients' ].any? ).to be( true )
       end
     end
 
@@ -169,11 +168,9 @@ RSpec.describe 'meal controller', type: :request do
 
         meal = JSON.parse( response.body ).first
 
-
         expect( response.status ).to eq( 200 )
         expect( meal[ 'uuid' ] ).to_not eq( uuid )
-        expect( ingredients.any? ).to be( true )
-        expect( expected_ingredient_uuids ).to eq( response_ingredients_uuids )
+        expect( meal[ 'ingredients' ].any? ).to be( true )
       end
     end
   end
